@@ -31,12 +31,17 @@ public class MainSidePanel extends JPanel{
 	public MainSidePanel(MainDisplay mainDisplay){
 		this.componentList = new LinkedList<JComponent>();
 		this.mainDisplay = mainDisplay;
-		this.setLayout(new GridLayout(10,1,0,0));
+		this.setLayout(new GridLayout(16,1,0,0));
 		this.setBackground(Color.RED);
 		JLabel songLocationLabel = new JLabel("Song Location");
 		final JTextField songLocationInput = new JTextField();
 		songLocationInput.setColumns(15);
 		JButton songLocationButton = new JButton("Set Location");
+		JLabel baseDifficultyLabel = new JLabel("Playback Difficulty");
+		final JTextField baseDifficultyInput = new JTextField("Easy");
+		JLabel goalDifficultyLabel = new JLabel("Output Difficulty");
+		final JTextField goalDifficultyInput = new JTextField("Medium");
+		final JButton difficultyButton = new JButton("Set Difficulty");
 		playSongButton = new JButton("Play");
 		JButton pauseSongButton = new JButton("Pause");
 		JButton stopSongButton = new JButton("Stop");
@@ -46,6 +51,11 @@ public class MainSidePanel extends JPanel{
 		componentList.add(songLocationLabel);
 		componentList.add(songLocationInput);
 		componentList.add(songLocationButton);
+		componentList.add(baseDifficultyLabel);
+		componentList.add(baseDifficultyInput);
+		componentList.add(goalDifficultyLabel);
+		componentList.add(goalDifficultyInput);
+		componentList.add(difficultyButton);
 		componentList.add(playSongButton);
 		componentList.add(pauseSongButton);
 		componentList.add(stopSongButton);
@@ -55,6 +65,11 @@ public class MainSidePanel extends JPanel{
             	setSong(songLocationInput.getText());
             }
         });
+		difficultyButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				setDifficulty(baseDifficultyInput.getText(),goalDifficultyInput.getText());
+			}
+		});
 		playSongButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playSong();
@@ -89,6 +104,11 @@ public class MainSidePanel extends JPanel{
 		this.add(songLocationLabel);
 		this.add(songLocationInput);
 		this.add(songLocationButton);
+		this.add(baseDifficultyLabel);
+		this.add(baseDifficultyInput);
+		this.add(goalDifficultyLabel);
+		this.add(goalDifficultyInput);
+		this.add(difficultyButton);
 		this.add(beatSlider);
 		MultiPanel tripleControlsPanel = new MultiPanel(3);
 		tripleControlsPanel.add(playSongButton);
@@ -118,6 +138,15 @@ public class MainSidePanel extends JPanel{
 		System.out.println((int)(Main.getSongLength()));
 		beatSlider.setMinimum(0);
 		System.out.println("DONE");
+	}
+	
+	/**
+	 * Sets the difficulty of the song to playback in main.
+	 * @param baseDifficulty the difficulty level of the song to be played in the background.
+	 * @param targetDifficulty the difficulty level the output of this program will be
+	 */
+	private void setDifficulty(String baseDifficulty,String targetDifficulty){
+		Main.setDifficulty(baseDifficulty,targetDifficulty);
 	}
 	private void playSong(){
 		Main.playSong();

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import control.CustomSong;
 import control.Main;
 import control.Song;
 import display.center.MainCenterPanel;
@@ -38,7 +39,9 @@ public class MainDisplay{
 		frame.pack();
 		addGlobalKeyListener(new DancePanelInput(inputReceiver));
 	}
-	
+	public void setCustomSong(CustomSong customSong){
+		mainCenterPanel.setDanceChart(new DanceChart(customSong.getNoteList()));
+	}
 	private void addGlobalKeyListener(KeyListener listener){
 		for(JComponent component : componentList){
 			component.addKeyListener(listener);
@@ -49,7 +52,6 @@ public class MainDisplay{
 	public void setSongTime(int microseconds){
 		Main.setSongTime(microseconds);
 	}
-	
 	/**
 	 * Updates the MainDisplay and all its sub components
 	 * @param time the current time in milliseconds

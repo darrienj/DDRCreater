@@ -43,7 +43,7 @@ public class DancePanelInput implements KeyListener, SerialPortEventListener {
 
 	public DancePanelInput(InputReceiver panel) {
 		this.panel = panel;
-		// initialize();
+		initialize();
 	}
 
 	public void initialize() {

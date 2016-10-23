@@ -1,4 +1,5 @@
 package control;
+
 import java.awt.FlowLayout;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,21 +25,26 @@ public class Main {
 	private static InputThread thread;
 	private static NoteChart noteChart;
 	private static Song song;
-	
-	public static void main(String[] args) throws IOException{
+	private static CustomSong displaySong;
+	private static String baseDifficulty;
+	private static String targetDifficulty;
+	private static MainDisplay mainDisplay;
+
+	public static void main(String[] args) throws IOException {
 		song = new Song();
 		musicPlaying = false;
 		playSongLock = new ReentrantLock(true);
 		ImageHandler.createImageHandler();
 		InputReceiverImpl inputReceiver = new InputReceiverImpl(song);
-		MainDisplay frame = new MainDisplay(inputReceiver);
-		thread = new InputThread(frame);
+		mainDisplay = new MainDisplay(inputReceiver);
+		thread = new InputThread(mainDisplay);
 		(new Thread(thread)).start();
 	}
-	public static void setSong(String song){
+
+	public static void setSong(String song) {
 		songName = song;
-		musicFile = Constants.FILE_BASE + "DDR_Files/Music/"+songName + ".wav";
-		songFile = Constants.FILE_BASE + "DDR_Files/Song/tmp/"+songName+".song";
+		musicFile = Constants.FILE_BASE + "DDR_Files/Music/" + songName
+				+ ".wav";
 		setMusic();
 		thread.setMusic(music);
 		try {
@@ -49,30 +55,42 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	public static void setSongTime(int milliseconds){
+
+	public static void setDifficulty(String baseDifficultyIn,
+			String targetDifficultyIn) {
+		baseDifficulty = baseDifficultyIn;
+		targetDifficulty = targetDifficultyIn;
+	}
+
+	public static void setSongTime(int milliseconds) {
 		music.setMilliseconds(milliseconds);
 	}
+
 	/**
 	 * gets how long the currently selected song is
+	 * 
 	 * @return the currently selected song's length in microseconds
 	 */
-	public static double getSongLength(){
-		setMusic();//store in ms where in the song each note is.  No concept of BPM here.
+	public static double getSongLength() {
+		setMusic();// store in ms where in the song each note is. No concept of
+					// BPM here.
 		return music.getLength();
 	}
-	public static void pauseSong(){
-		if(playSongLock.tryLock() && musicPlaying == false){
-			playSongLock.unlock(); //do nothing, song wasn't playing
-		} else{
+
+	public static void pauseSong() {
+		if (playSongLock.tryLock() && musicPlaying == false) {
+			playSongLock.unlock(); // do nothing, song wasn't playing
+		} else {
 			music.pause();
 			musicPlaying = false;
 			playSongLock.unlock();
 		}
 	}
-	public static void playSong(){
-		if(playSongLock.tryLock()){
+
+	public static void playSong() {
+		if (playSongLock.tryLock()) {
 			musicPlaying = true;
 			setMusic();
 			try {
@@ -87,45 +105,76 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+			if (targetDifficulty != "" && targetDifficulty != null) {
+				songFile = Constants.FILE_BASE + "DDR_Files/Song/"
+						+ targetDifficulty + "/" + songName;
+			} else {
+				songFile = Constants.FILE_BASE + "DDR_Files/Song/" + songName;
+			}
+			try {
+				if (baseDifficulty != "" && baseDifficulty != null) {
+					displaySong = new CustomSong(Constants.FILE_BASE
+							+ "DDR_Files/Song/" + baseDifficulty + "/"
+							+ songName + ".csong", baseDifficulty);
+					displaySong.build();
+				} else {
+					displaySong = null;
+				}
+				System.out.println("Got song");
+			} catch (IOException e) {
+				System.out.println(e);
+				displaySong = null;
+			}
+			mainDisplay.setCustomSong(displaySong);
 		}
-		
+
 	}
-	public static void stopSong(){
-		if(playSongLock.tryLock() && musicPlaying == false){
-			playSongLock.unlock(); //do nothing, song wasn't playing
-		} else{
+
+	public static CustomSong getCustomSong() {
+		return displaySong;
+	}
+
+	public static void stopSong() {
+		if (playSongLock.tryLock() && musicPlaying == false) {
+			playSongLock.unlock(); // do nothing, song wasn't playing
+		} else {
 			music.stop();
 			musicPlaying = false;
 			playSongLock.unlock();
 		}
 	}
-	public static void createSong(){
+
+	public static void createSong() {
 		playSong();
 	}
-	private static String selectSong(){
+
+	private static String selectSong() {
 		return "standOut";
 	}
-	public static void saveSong(){
-		SongWriter writer = new SongWriter(songName,song);
-		try{
+
+	public static void saveSong() {
+		SongWriter writer = new SongWriter(songFile, song);
+		try {
 			writer.write();
-		} catch(FileNotFoundException e){
+		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Failed to save file");
 		}
 		stopSong();
 	}
-	private static void setMusic(){
-		if(music == null){
+
+	private static void setMusic() {
+		if (music == null) { // TODO remove this if. Seems unnecessary
 			music = new Music(musicFile);
 		}
 	}
-	
+
 	/**
-	 * Updates the note creation process.  
-	 * @param time the current time in the song, in milliseconds
+	 * Updates the note creation process.
+	 * 
+	 * @param time
+	 *            the current time in the song, in milliseconds
 	 */
-	public static void update(int time){
+	public static void update(int time) {
 		song.update(time);
 	}
 }
